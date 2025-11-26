@@ -87,14 +87,23 @@ struct arBonito: public BST< visData >
    }
 
    void definirNivelesYtamaños(){
-      raiz->size = posOrder(raiz,0);
+      raiz->dato.size = posOrder(raiz,0);
+   }
+
+   int inOrder(nodoT<visData> *r, int nivel)
+   {
+      if (r == nullptr) return 0; 
+      cout << r->dato.val << endl; 
+
+      inOrder(r->izq, nivel+1); 
+      inOrder(r->der, nivel+1); 
    }
 
    int posOrder(nodoT<visData> * nodo ,int nivel)
    {
-      nodo->nivel = nivel;
+      nodo->dato.nivel = nivel;
 
-      nNiveles = max(nNiveles, nivel);
+      nNiveles = std::max(nNiveles, (unsigned int) nivel);
       int tamaño = 1;
       if (nodo->izq)
          tamaño += posOrder(nodo->izq, nivel +1);
@@ -102,9 +111,10 @@ struct arBonito: public BST< visData >
       if (nodo->der)
          tamaño+= posOrder(nodo->der, nivel +1);
 
-      nodo->size = tamaño;
+      nodo->dato.size = tamaño;
       return tamaño;
    }
+
 
 
 
