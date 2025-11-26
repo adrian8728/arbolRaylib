@@ -86,10 +86,7 @@ struct arBonito: public BST< visData >
       CloseWindow ();
    }
 
-   void definirNivelesYtamaños(){
-      raiz->dato.size = posOrder(raiz,0);
-   }
-
+  
    int inOrder(nodoT<visData> *r, int nivel)
    {
       if (r == nullptr) return 0; 
@@ -97,6 +94,10 @@ struct arBonito: public BST< visData >
 
       inOrder(r->izq, nivel+1); 
       inOrder(r->der, nivel+1); 
+   }
+
+    void definirNivelesYtamaños(){
+      raiz->dato.size = posOrder(raiz,0);
    }
 
    int posOrder(nodoT<visData> * nodo ,int nivel)
@@ -114,8 +115,6 @@ struct arBonito: public BST< visData >
       nodo->dato.size = tamaño;
       return tamaño;
    }
-
-
 
 
    void update()
@@ -170,6 +169,7 @@ int main (int argc, char **argv)
    //srand48 (semilla);
    srand(time(NULL));
 
+   
    for (i = 0; i < N; ++i)
    {
       visData val ((int) ( rand() % 1000));
