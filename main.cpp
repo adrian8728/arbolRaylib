@@ -181,6 +181,12 @@ int main (int argc, char **argv)
    }
    cout << endl;
 
+   V.definirNivelesYtamaños();
+
+   cout << "numero de niveles" << V.nNiveles  << endl;
+
+   cout << "nodos totales" << V.raiz->dato.size << endl;
+
    V.Loop ();
 
    return 0;
