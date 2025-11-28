@@ -60,6 +60,8 @@ struct arBonito: public BST< visData >
    unsigned int nNiveles;
    int nodeRadius;
    float cX, cY;
+   vector<vector<nodoT<visData> * >> vecArbol;
+   int tamVecArbol;
 
    arBonito():BST< visData >()
    {
@@ -69,6 +71,7 @@ struct arBonito: public BST< visData >
       nodeRadius = 30;
       cX = ancho / 2;
       cY = alto / 2;
+      tamVecArbol = 0;
    }
 
    arBonito (int _ancho, int _alto, BST< visData > *T = nullptr):BST< visData >(T)
@@ -79,6 +82,7 @@ struct arBonito: public BST< visData >
       nodeRadius = 30;
       cX = ancho / 2;
       cY = alto / 2;
+      tamVecArbol = 0;
    }
 
    ~arBonito ()
@@ -96,24 +100,48 @@ struct arBonito: public BST< visData >
       inOrder(r->der, nivel+1); 
    }
 
-    void definirNivelesYtamaños(){
-      raiz->dato.size = posOrder(raiz,0);
+    void defNivelesYtamaños()
+   {
+      raiz->dato.size = _defNivelesYtamaños(raiz,0);
    }
 
-   int posOrder(nodoT<visData> * nodo ,int nivel)
+   int _defNivelesYtamaños(nodoT<visData> * nodo ,int nivel)
    {
       nodo->dato.nivel = nivel;
 
-      nNiveles = std::max(nNiveles, (unsigned int) nivel);
+      nNiveles = std::max(nNiveles, (unsigned int) nivel + 1);
       int tamaño = 1;
       if (nodo->izq)
-         tamaño += posOrder(nodo->izq, nivel +1);
+         tamaño += _defNivelesYtamaños(nodo->izq, nivel +1);
       
       if (nodo->der)
-         tamaño+= posOrder(nodo->der, nivel +1);
+         tamaño+= _defNivelesYtamaños(nodo->der, nivel +1);
 
       nodo->dato.size = tamaño;
       return tamaño;
+   }
+
+   void actualizarVecArbol()
+   {
+      //actualizamos el numero de niveles y el nivel de cada nodo
+       defNivelesYtamaños();
+
+      //le asignamos una matriz limpia dodne el numero de filas corresponde al numero de niveles
+      vector<vector<nodoT<visData> * >> arbolLimpio(nNiveles);
+      vecArbol =  arbolLimpio;
+
+      _actualizarVecArbol(raiz);
+   }
+
+   void _actualizarVecArbol(nodoT<visData> * nodo)
+   {
+      vecArbol[nodo->dato.nivel].push_back(nodo);
+      
+      if (nodo->der)
+         _actualizarVecArbol(nodo->der);
+      
+      if (nodo->izq)
+         _actualizarVecArbol(nodo->izq);
    }
 
 
