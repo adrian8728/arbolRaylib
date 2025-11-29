@@ -1,3 +1,4 @@
+// Se agregan comentarios explicativos en español sobre la intención del programa y funciones.
 #include <raylib.h>
 #include <math.h>
 #include <iostream>
@@ -9,6 +10,7 @@
 
 using namespace std;
 
+// Estructura que contiene los datos visuales de cada nodo (valor y datos de posición).
 struct visData
 {
    int val;
@@ -17,6 +19,7 @@ struct visData
    int nivel;
    int size;
 
+   // Constructor por defecto: inicializa valores a cero.
    visData ()
    {
       val = 0;
@@ -26,6 +29,7 @@ struct visData
       nivel = 0;
    }
 
+   // Constructor con valor.
    visData (int d)
    {
       val = d;
@@ -38,6 +42,7 @@ struct visData
    {
       return val;
    }
+   // Comparador por valor para mantener orden en el BST.
    bool operator < (visData &v)
    {
       if (val < v.val)
@@ -46,6 +51,7 @@ struct visData
    }
 };
 
+// Operador de salida para depuración: imprime los datos visuales del nodo.
 ostream & operator << (ostream & s, visData &v)
 {
    s << "[" << v.val << ", (" << v.x << ", " << v.y << "),"
@@ -54,6 +60,7 @@ ostream & operator << (ostream & s, visData &v)
    return s;
 }
 
+// Clase derivada de BST para gestión y visualización del árbol (Raylib).
 struct arBonito: public BST< visData >
 {
    int ancho, alto;
@@ -63,6 +70,7 @@ struct arBonito: public BST< visData >
    vector<vector<nodoT<visData> * >> vecArbol;
    int tamVecArbol;
 
+   // Inicialización por defecto de la escena/visualización.
    arBonito():BST< visData >()
    {
       ancho = 800;
@@ -87,10 +95,11 @@ struct arBonito: public BST< visData >
 
    ~arBonito ()
    {
+      // Cierra la ventana de Raylib si aún está abierta.
       CloseWindow ();
    }
 
-  
+   // Recorre el árbol en orden e imprime los valores (uso de depuración).
    int inOrder(nodoT<visData> *r, int nivel)
    {
       if (r == nullptr) return 0; 
@@ -100,11 +109,13 @@ struct arBonito: public BST< visData >
       inOrder(r->der, nivel+1); 
    }
 
+    // Inicializa el número de niveles y tamaños de subárbol para cada nodo.
     void defNivelesYtamaños()
-   {
+    {
       raiz->dato.size = _defNivelesYtamaños(raiz,0);
-   }
+    }
 
+   // Función recursiva que asigna nivel y calcula el tamaño (número de nodos) de cada subárbol.
    int _defNivelesYtamaños(nodoT<visData> * nodo ,int nivel)
    {
       nodo->dato.nivel = nivel;
@@ -121,6 +132,7 @@ struct arBonito: public BST< visData >
       return tamaño;
    }
 
+   // Reconstruye 'vecArbol' organizando punteros a nodos por nivel (para dibujado).
    void actualizarVecArbol()
    {
       //actualizamos el numero de niveles y el nivel de cada nodo
@@ -133,6 +145,7 @@ struct arBonito: public BST< visData >
       _actualizarVecArbol(raiz);
    }
 
+   // Función recursiva que anida cada nodo en su fila correspondiente según nivel.
    void _actualizarVecArbol(nodoT<visData> * nodo)
    {
       vecArbol[nodo->dato.nivel].push_back(nodo);
@@ -144,12 +157,13 @@ struct arBonito: public BST< visData >
          _actualizarVecArbol(nodo->izq);
    }
 
-
+   // update: lugar para la lógica de actualización por frame (animaciones, cálculo de posiciones).
    void update()
    {
 
    }
 
+   // render: lugar para dibujar el árbol en pantalla con Raylib.
    void render()
    {
       BeginDrawing ();
@@ -159,6 +173,7 @@ struct arBonito: public BST< visData >
       EndDrawing ();
    }
 
+   // Bucle principal de la aplicación: inicializa ventana y ejecuta update/render.
    void Loop()
    {
       InitWindow (ancho, alto, "ArBonito");

@@ -11,18 +11,21 @@ template < typename X > struct BST
    nodoT < X > *raiz;
    BST < X > *trash;         //trash -> basura en ingles.
 
+   // Constructor por defecto: inicializa un árbol vacío.
    BST()
    {
       raiz = nullptr;
       trash = nullptr;
    }
 
+   // Constructor que puede recibir un "trash" (lista de nodos reutilizables).
    BST (BST < X > *T)
    {
       raiz = nullptr;
       trash = T;
    }
 
+   // Constructor copia: delega en el operador= para realizar la copia.
    BST (const BST < X > &L)
    {
       raiz = nullptr;
@@ -32,9 +35,11 @@ template < typename X > struct BST
 
    ~BST ()
    {
+      // Destructor: borra todo el árbol para liberar memoria.
       borraArbol ();
    }
 
+   // Copia el contenido de 'l' en este árbol (borra el actual si existe).
    void copia (const BST < X > &l)
    {
       if (raiz != nullptr) 
@@ -43,6 +48,7 @@ template < typename X > struct BST
       _copia(l.raiz);
    }
 
+   // Función recursiva auxiliar para copiar nodos (recorrido preorden).
    void _copia(nodoT<X> *r)
    {
       if (r == nullptr)
@@ -58,12 +64,14 @@ template < typename X > struct BST
       return *this;
    }
 
+   // Borra todo el árbol usando la rutina recursiva _borraArbol.
    void borraArbol ()
    {
       _borraArbol(raiz);
       raiz = nullptr;
    }
 
+   // Recorrido post-order para eliminar nodos de manera segura.
    void _borraArbol(nodoT<X> *r)
    {
       if (r == nullptr)
@@ -73,6 +81,7 @@ template < typename X > struct BST
       borraNodo(r);
    }
 
+   // Elimina un nodo: lo extrae del árbol y lo borra o lo añade a 'trash' para reutilización.
    void borraNodo (nodoT < X > *n)
    {
       if (n == nullptr)
@@ -87,6 +96,7 @@ template < typename X > struct BST
          delete n;
    }
 
+   // Crea un nuevo nodo: reutiliza uno de 'trash' si está disponible, sino usa new.
    nodoT < X > *creaNodo (const X & d)
    {
       nodoT < X > *n;
@@ -103,6 +113,7 @@ template < typename X > struct BST
       return n;
    }
 
+   // Inserta un nodo ya creado en la posición adecuada (sin romper punteros).
    void inserta(nodoT<X> *n)
    {
       nodoT<X> *x, *y;
@@ -131,6 +142,7 @@ template < typename X > struct BST
       n->padre = y;
    }
 
+   // Inserta un valor creando primero un nodo con creaNodo.
    void inserta(X &d)
    {
       nodoT<X> *n;
@@ -140,6 +152,7 @@ template < typename X > struct BST
          inserta(n);
    }
 
+   // Búsqueda iterativa de un valor: devuelve el puntero al nodo o nullptr.
    nodoT<X> *busca(X &val)
    {
       nodoT<X> *apu = raiz;
@@ -156,7 +169,7 @@ template < typename X > struct BST
       return nullptr;
    }
 
-   //Recorrido de árboles
+   // Recorridos clásicos: inorder, preorder, postorder (imprimen en std::cout).
    void inorder()
    {
       _inorder(raiz);
@@ -213,7 +226,7 @@ template < typename X > struct BST
       std::cout << r->dato << " ";
    }
 
-
+   // Métodos para obtener mínimo/máximo (iterativos y recursivos).
    nodoT<X> *min()
    {
       nodoT<X> *apu = raiz;
@@ -287,6 +300,7 @@ template < typename X > struct BST
          return _maxR(r->der);
    }
 
+   // Sucesor y predecesor en orden in-order (útil para recorridos iterativos).
    nodoT<X> *sucesor(nodoT<X> *apu)
    {
       nodoT<X> *x, *y;
@@ -327,6 +341,7 @@ template < typename X > struct BST
       return y;
    }
 
+   // Recorridos iterativos usando sucesor/predecesor.
    void recorridoIterativo()
    {
       nodoT<X> *apu;
@@ -351,6 +366,7 @@ template < typename X > struct BST
       }
    }
 
+   // Extrae un nodo 'z' del árbol manteniendo la estructura del BST y devuelve el nodo desconectado.
    nodoT<X> *extraeNodo(nodoT<X> *z)
    {
       nodoT<X> *x, *y;
