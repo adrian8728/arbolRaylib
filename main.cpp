@@ -156,7 +156,82 @@ struct arBonito: public BST< visData >
       if (nodo->izq)
          _actualizarVecArbol(nodo->izq);
    }
+   // Calcula el radio (distancia al centro) para un nivel dado
+   // Cada nivel se aleja menos que el anterior para que el árbol quepa mejo
+   float getRadioPorNivel(int nivel)
+   {
+      if (nivel == 0) return 0; // La raíz está en el centro
 
+      float radioBase = 120.0f; // Distancia inicial del primer anillo
+      float radioAcumulado = 0;
+      
+      // Sumatoria con decaimiento: dist + dist*0.8 + dist*0.64...
+      for(int i = 1; i <= nivel; i++) {
+         // Factor de decaimiento: cada nivel es el 85% del ancho del anterior
+         radioAcumulado += radioBase * pow(0.85f, i - 1);
+      }
+      return radioAcumulado;
+   }
+
+   // Función principal para iniciar el cálculo de posiciones
+   void calcularPosiciones()
+   {
+      if (raiz == nullptr) return;
+
+      // Actualizamos los tamaños de los subárboles
+      defNivelesYtamaños(); 
+
+      // La raíz abarca todo el círculo (0 a 2*PI)
+      _calcularPosiciones(raiz, 0.0f, 2.0f * M_PI);
+   }
+
+   void _calcularPosiciones(nodoT<visData> *nodo, float anguloInicio, float anguloFin)
+   {
+      if (nodo == nullptr) return;
+
+      // Determinar posición del nodo actual
+      // Se coloca al CENTRO de su sector asignado
+      float anguloCentro = anguloInicio + (anguloFin - anguloInicio) / 2.0f;
+      float radio = getRadioPorNivel(nodo->dato.nivel);
+
+      // Guardamos coordenadas polares
+      nodo->dato.theta = anguloCentro;
+      nodo->dato.mag = radio;
+
+      // Convertimos a Cartesianas (x, y) relativas al centro de pantalla (cX, cY)
+      nodo->dato.x = cX + radio * cos(anguloCentro);
+      nodo->dato.y = cY + radio * sin(anguloCentro);
+
+      // 2. Calcular la distribución para los hijos (si existen)
+      nodoT<visData> *izq = nodo->izq;
+      nodoT<visData> *der = nodo->der;
+
+      if (izq == nullptr && der == nullptr) return; // Es hoja, terminamos
+
+      // Obtenemos los tamaños (size) calculados previamente en defNivelesYtamaños
+      // Usamos double para evitar problemas de división entera
+      double sizeIzq = (izq != nullptr) ? (double)izq->dato.size : 0;
+      double sizeDer = (der != nullptr) ? (double)der->dato.size : 0;
+      double totalHijos = sizeIzq + sizeDer;
+
+      // Ancho total del sector actual en radianes
+      float anchoSector = anguloFin - anguloInicio;
+
+      // Calculamos qué fracción del ángulo le toca al hijo izquierdo
+      float anchoIzq = (totalHijos > 0) ? anchoSector * (float)(sizeIzq / totalHijos) : 0;
+
+      // Llamadas recursivas pasando los nuevos rangos angulares
+      // El hijo izquierdo toma desde [Inicio] hasta [Inicio + anchoIzq]
+      if (izq != nullptr) {
+         _calcularPosiciones(izq, anguloInicio, anguloInicio + anchoIzq);
+      }
+
+      // El hijo derecho toma el resto: desde [Inicio + anchoIzq] hasta [Fin]
+      if (der != nullptr) {
+         _calcularPosiciones(der, anguloInicio + anchoIzq, anguloFin);
+      }
+   }
+   
    // update: lugar para la lógica de actualización por frame (animaciones, cálculo de posiciones).
    void update()
    {
