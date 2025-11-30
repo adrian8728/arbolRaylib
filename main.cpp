@@ -194,44 +194,53 @@ struct arBonito: public BST< visData >
    {
       if (nodo == nullptr) return;
 
-      // Determinar posición del nodo actual
-      // Se coloca al CENTRO de su sector asignado
-      float anguloCentro = anguloInicio + (anguloFin - anguloInicio) / 2.0f;
+      // 1. Determinar posición del nodo actual (Centro del sector)
+      float anguloCentro = (anguloInicio + anguloFin)/ 2.0f;
       float radio = getRadioPorNivel(nodo->dato.nivel);
 
       // Guardamos coordenadas polares
       nodo->dato.theta = anguloCentro;
       nodo->dato.mag = radio;
 
-      // Convertimos a Cartesianas (x, y) relativas al centro de pantalla (cX, cY)
+      // Convertimos a Cartesianas
       nodo->dato.x = cX + radio * cos(anguloCentro);
       nodo->dato.y = cY + radio * sin(anguloCentro);
 
-      // 2. Calcular la distribución para los hijos (si existen)
+      // --- PREPARACIÓN PARA HIJOS ---
       nodoT<visData> *izq = nodo->izq;
       nodoT<visData> *der = nodo->der;
 
-      if (izq == nullptr && der == nullptr) return; // Es hoja, terminamos
+      if (izq == nullptr && der == nullptr) return;
 
-      // Obtenemos los tamaños (size) calculados previamente en defNivelesYtamaños
-      // Usamos double para evitar problemas de división entera
+      // Si estamos en la raíz, forzamos que el hijo Izquierdo tome el lado Izquierdo (90° a 270°)
+      // y el hijo Derecho tome el lado Derecho (-90° a 90°).
+      if (nodo->dato.nivel == 0)
+      {
+         // Hemisferio Izquierdo para el hijo 'izq' (Centrado en 180° o PI)
+         // Rango: PI/2 (90°) hasta 3*PI/2 (270°)
+         if (izq != nullptr) {
+            _calcularPosiciones(izq, M_PI / 2.0f, 3.0f * M_PI / 2.0f);
+         }
+
+         // Hemisferio Derecho para el hijo 'der' (Centrado en 0° o 360°)
+         // Rango: -PI/2 (-90°) hasta PI/2 (90°)
+         if (der != nullptr) {
+            _calcularPosiciones(der, -M_PI / 2.0f, M_PI / 2.0f);
+         }
+         return; // Terminamos aquí para la raíz, no ejecutamos la lógica estándar de abajo.
+      }
+      
       double sizeIzq = (izq != nullptr) ? (double)izq->dato.size : 0;
       double sizeDer = (der != nullptr) ? (double)der->dato.size : 0;
       double totalHijos = sizeIzq + sizeDer;
 
-      // Ancho total del sector actual en radianes
       float anchoSector = anguloFin - anguloInicio;
-
-      // Calculamos qué fracción del ángulo le toca al hijo izquierdo
       float anchoIzq = (totalHijos > 0) ? anchoSector * (float)(sizeIzq / totalHijos) : 0;
 
-      // Llamadas recursivas pasando los nuevos rangos angulares
-      // El hijo izquierdo toma desde [Inicio] hasta [Inicio + anchoIzq]
       if (izq != nullptr) {
          _calcularPosiciones(izq, anguloInicio, anguloInicio + anchoIzq);
       }
 
-      // El hijo derecho toma el resto: desde [Inicio + anchoIzq] hasta [Fin]
       if (der != nullptr) {
          _calcularPosiciones(der, anguloInicio + anchoIzq, anguloFin);
       }
