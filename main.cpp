@@ -1,11 +1,13 @@
 // Se agregan comentarios explicativos en español sobre la intención del programa y funciones.
 #include <raylib.h>
+#define _USE_MATH_DEFINES //sin esto mi entorno no reconoce la constante M_PI --Adrian
 #include <math.h>
 #include <iostream>
 #include <cstdlib> // For rand() and srand()
 #include <ctime>
 #include <vector>
 #include <algorithm>
+#include <string.h>
 #include "BST.h"
 
 using namespace std;
@@ -73,10 +75,10 @@ struct arBonito: public BST< visData >
    // Inicialización por defecto de la escena/visualización.
    arBonito():BST< visData >()
    {
-      ancho = 800;
-      alto = 600;
+      ancho = GetMonitorWidth(GetCurrentMonitor());
+      alto = GetMonitorHeight(GetCurrentMonitor());
       nNiveles = 0;
-      nodeRadius = 30;
+      nodeRadius = 20;
       cX = ancho / 2;
       cY = alto / 2;
       tamVecArbol = 0;
@@ -162,7 +164,10 @@ struct arBonito: public BST< visData >
    {
       if (nivel == 0) return 0; // La raíz está en el centro
 
-      float radioBase = 120.0f; // Distancia inicial del primer anillo
+      //float radioBase = 120.0f; // Distancia inicial del primer anillo
+      float radioBase = 80.0f; // lo cambie por que para arboles con mas de 6 nivele ya no daban en la pantalla 
+      //estaria bueno definir una funcion que en base al numero de niveles y el tamaño de la pantall nos de un radio base ideal
+      
       float radioAcumulado = 0;
       
       // Sumatoria con decaimiento: dist + dist*0.8 + dist*0.64...
@@ -242,10 +247,38 @@ struct arBonito: public BST< visData >
    void render()
    {
       BeginDrawing ();
+      ancho = GetMonitorWidth(GetCurrentMonitor());
+      alto = GetMonitorHeight(GetCurrentMonitor());
+      cX = ancho/2;
+      cY = alto/2;
 
       ClearBackground (RAYWHITE);
 
+      for (int i = 1; i < nNiveles; i++)
+      {
+         DrawCircleLines(cX, cY, getRadioPorNivel(i),  DARKBLUE);
+      }
+
+      calcularPosiciones();
+
+      dibujarArbol(raiz);
+
       EndDrawing ();
+   }
+
+   void dibujarArbol(nodoT<visData> *nodo)
+   {
+      DrawCircleLines(nodo->dato.x, nodo->dato.y, nodeRadius,  GREEN);
+      DrawText(TextFormat("%i",nodo->dato.val),  nodo->dato.x, nodo->dato.y,12, DARKBLUE);
+
+      if (nodo->padre)
+         DrawLine(nodo->padre->dato.x, nodo->padre->dato.y, nodo->dato.x, nodo->dato.y, RED);
+
+      if (nodo->izq)
+         dibujarArbol(nodo->izq);
+      
+      if (nodo->der)
+         dibujarArbol(nodo->der);
    }
 
    // Bucle principal de la aplicación: inicializa ventana y ejecuta update/render.
@@ -272,7 +305,12 @@ int main (int argc, char **argv)
    long semilla = 0;
    int ancho = 1280, alto = 1024;
    BST<visData> Basura;
-   arBonito V(ancho, alto, &Basura);
+   //arBonito V(ancho, alto, &Basura);
+   arBonito V;
+
+   cout << "alto: " << GetScreenHeight() << endl;
+   cout << "ancho: " << V.ancho << endl;
+   
    
    if (argc > 1)
       N = atoi (argv[1]);
@@ -295,7 +333,10 @@ int main (int argc, char **argv)
       V.inserta (val);
       cout << "Insertamos el valor " << val << " al árbol." << endl;
    }
+
    cout << endl;
+
+   V.defNivelesYtamaños();
 
    V.Loop ();
 
