@@ -165,7 +165,7 @@ struct arBonito: public BST< visData >
       if (nivel == 0) return 0; // La raíz está en el centro
 
       //float radioBase = 120.0f; // Distancia inicial del primer anillo
-      float radioBase = 80.0f; // lo cambie por que para arboles con mas de 6 nivele ya no daban en la pantalla 
+      float radioBase = 35.0f; // lo cambie por que para arboles con mas de 6 nivele ya no daban en la pantalla 
       //estaria bueno definir una funcion que en base al numero de niveles y el tamaño de la pantall nos de un radio base ideal
       
       float radioAcumulado = 0;
@@ -173,7 +173,7 @@ struct arBonito: public BST< visData >
       // Sumatoria con decaimiento: dist + dist*0.8 + dist*0.64...
       for(int i = 1; i <= nivel; i++) {
          // Factor de decaimiento: cada nivel es el 85% del ancho del anterior
-         radioAcumulado += radioBase * pow(0.85f, i - 1);
+         radioAcumulado += radioBase * pow(1.02f, i - 1);
       }
       return radioAcumulado;
    }
@@ -211,24 +211,6 @@ struct arBonito: public BST< visData >
       nodoT<visData> *der = nodo->der;
 
       if (izq == nullptr && der == nullptr) return;
-
-      // Si estamos en la raíz, forzamos que el hijo Izquierdo tome el lado Izquierdo (90° a 270°)
-      // y el hijo Derecho tome el lado Derecho (-90° a 90°).
-      if (nodo->dato.nivel == 0)
-      {
-         // Hemisferio Izquierdo para el hijo 'izq' (Centrado en 180° o PI)
-         // Rango: PI/2 (90°) hasta 3*PI/2 (270°)
-         if (izq != nullptr) {
-            _calcularPosiciones(izq, M_PI / 2.0f, 3.0f * M_PI / 2.0f);
-         }
-
-         // Hemisferio Derecho para el hijo 'der' (Centrado en 0° o 360°)
-         // Rango: -PI/2 (-90°) hasta PI/2 (90°)
-         if (der != nullptr) {
-            _calcularPosiciones(der, -M_PI / 2.0f, M_PI / 2.0f);
-         }
-         return; // Terminamos aquí para la raíz, no ejecutamos la lógica estándar de abajo.
-      }
       
       double sizeIzq = (izq != nullptr) ? (double)izq->dato.size : 0;
       double sizeDer = (der != nullptr) ? (double)der->dato.size : 0;
@@ -236,6 +218,25 @@ struct arBonito: public BST< visData >
 
       float anchoSector = anguloFin - anguloInicio;
       float anchoIzq = (totalHijos > 0) ? anchoSector * (float)(sizeIzq / totalHijos) : 0;
+
+            /******************************
+             ********NO TOCAR *************
+            ****CREO QUE YA FUNCIONA *****
+            ******************************/
+      if (nodo->dato.nivel == 0)
+      {
+         // Hemisferio Izquierdo para el hijo 'izq' (Centrado en 0)
+         if (izq != nullptr) {
+            _calcularPosiciones(izq, -anchoIzq / 2.0f, anchoIzq/2.0f);
+
+         }
+
+         // Hemisferio Derecho para el hijo 'der' (Centrado en 180)
+         if (der != nullptr) {
+            _calcularPosiciones(der, anchoIzq / 2.0f, 2 * M_PI - (anchoIzq/2.0f));
+         }
+         return; // Terminamos aquí para la raíz, no ejecutamos la lógica estándar de abajo.
+      }
 
       if (izq != nullptr) {
          _calcularPosiciones(izq, anguloInicio, anguloInicio + anchoIzq);
@@ -310,9 +311,9 @@ struct arBonito: public BST< visData >
 
 int main (int argc, char **argv)
 {
-   int i, N = 16;
+   int i, N = 100;
    long semilla = 0;
-   int ancho = 1280, alto = 1024;
+   int ancho = 1920, alto = 1080;
    BST<visData> Basura;
    //arBonito V(ancho, alto, &Basura);
    arBonito V;
