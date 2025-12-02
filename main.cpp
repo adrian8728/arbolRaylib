@@ -101,6 +101,15 @@ struct arBonito: public BST< visData >
       CloseWindow ();
    }
 
+   bool _balanceado (nodoT<visData> *r) 
+   {
+      if (r == nullptr)
+         return true; 
+      if (fabs(r->izq->dato.size - r->der->dato.size -1) <= 1)
+         return false; 
+      return _balanceado(r->izq) && _balanceado(r->der); 
+   }
+
    // Recorre el árbol en orden e imprime los valores (uso de depuración).
    int inOrder(nodoT<visData> *r, int nivel)
    {
