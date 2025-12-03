@@ -110,6 +110,35 @@ struct arBonito: public BST< visData >
       return _balanceado(r->izq) && _balanceado(r->der); 
    }
 
+   nodoT<visData> *buscaNodoClickeado(float xRaton, float yRaton)
+   {
+
+      defNivelesYtamaños();
+      actualizarVecArbol();
+      double distMin = 100000; 
+      nodoT<visData> * nodoClickeado = 0;
+      double umbral = 10;
+
+      //obtener cual es el nodo que esta mas cerca de donde se clickeo
+      for (int nivel = 0; nivel < nNiveles; nivel++)
+         for (int i = 0; i < vecArbol[nivel].size(); i++)
+         {
+            nodoT<visData> * nodo = vecArbol[nivel][i];
+            double dist = sqrt( pow((xRaton - nodo->dato.x),2) + pow((xRaton - nodo->dato.x),2) );
+            if (dist < distMin)
+            {  
+               distMin = dist;
+               nodoClickeado = nodo;
+            }   
+         }
+      
+      if (distMin <= umbral )
+         return nodoClickeado;
+      else 
+         return nullptr;
+            
+   }
+
    // Recorre el árbol en orden e imprime los valores (uso de depuración).
    int inOrder(nodoT<visData> *r, int nivel)
    {
@@ -259,6 +288,19 @@ struct arBonito: public BST< visData >
    // update: lugar para la lógica de actualización por frame (animaciones, cálculo de posiciones).
    void update()
    {
+         Vector2 posicionMouse = GetMousePosition();
+
+         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+         {
+            nodoT<visData>* nodoClickeado = buscaNodoClickeado((float) posicionMouse.x,(float)posicionMouse.y);
+            if (nodoClickeado)
+            {
+               DrawText(TextFormat("ultimo nodo clickeado: %i",nodoClickeado->dato.val),  cX, cY,15, DARKBLUE);
+               //comente esto pq a veces funciona a veces se petatea, hay que debuggearlo
+               //extraeNodo(nodoClickeado);
+               //inserta(nodoClickeado);
+            }
+         }
 
    }
 
@@ -320,7 +362,7 @@ struct arBonito: public BST< visData >
 
 int main (int argc, char **argv)
 {
-   int i, N = 100;
+   int i, N = 40;
    long semilla = 0;
    int ancho = 1920, alto = 1080;
    BST<visData> Basura;
