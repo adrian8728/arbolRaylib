@@ -113,7 +113,7 @@ struct arBonito: public BST< visData >
    nodoT<visData> *buscaNodoClickeado(float xRaton, float yRaton)
    {
 
-      defNivelesYtamaños();
+      
       actualizarVecArbol();
       double distMin = 100000; 
       nodoT<visData> * nodoClickeado = 0;
@@ -124,7 +124,7 @@ struct arBonito: public BST< visData >
          for (int i = 0; i < vecArbol[nivel].size(); i++)
          {
             nodoT<visData> * nodo = vecArbol[nivel][i];
-            double dist = sqrt( pow((xRaton - nodo->dato.x),2) + pow((xRaton - nodo->dato.x),2) );
+            double dist = hypot(xRaton - nodo->dato.x,yRaton - nodo->dato.y);
             if (dist < distMin)
             {  
                distMin = dist;
@@ -153,14 +153,27 @@ struct arBonito: public BST< visData >
     void defNivelesYtamaños()
     {
       raiz->dato.size = _defNivelesYtamaños(raiz,0);
+
+      nNiveles = nivelMaximo(raiz);
     }
+
+    unsigned int nivelMaximo(nodoT<visData> * nodo)
+    {
+         if (nodo == nullptr)
+            return 0;
+         else if (!nodo->izq && !nodo->der)
+            return nodo->dato.nivel;
+         else
+            return std::max(nivelMaximo(nodo->izq), nivelMaximo(nodo->izq) );
+    }
+
+    
 
    // Función recursiva que asigna nivel y calcula el tamaño (número de nodos) de cada subárbol.
    int _defNivelesYtamaños(nodoT<visData> * nodo ,int nivel)
    {
       nodo->dato.nivel = nivel;
 
-      nNiveles = std::max(nNiveles, (unsigned int) nivel + 1);
       int tamaño = 1;
       if (nodo->izq)
          tamaño += _defNivelesYtamaños(nodo->izq, nivel +1);
@@ -176,12 +189,11 @@ struct arBonito: public BST< visData >
    void actualizarVecArbol()
    {
       //actualizamos el numero de niveles y el nivel de cada nodo
-       defNivelesYtamaños();
+       //defNivelesYtamaños();
 
       //le asignamos una matriz limpia dodne el numero de filas corresponde al numero de niveles
       vector<vector<nodoT<visData> * >> arbolLimpio(nNiveles);
       vecArbol =  arbolLimpio;
-
       _actualizarVecArbol(raiz);
    }
 
@@ -258,8 +270,8 @@ struct arBonito: public BST< visData >
       float anchoIzq = (totalHijos > 0) ? anchoSector * (float)(sizeIzq / totalHijos) : 0;
 
             /******************************
-             ********NO TOCAR *************
-            ****CREO QUE YA FUNCIONA *****
+            ********* NO TOCAR ************
+            **** CREO QUE YA FUNCIONA *****
             ******************************/
       if (nodo->dato.nivel == 0)
       {
@@ -290,6 +302,8 @@ struct arBonito: public BST< visData >
    {
          Vector2 posicionMouse = GetMousePosition();
 
+         
+
          if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
          {
             nodoT<visData>* nodoClickeado = buscaNodoClickeado((float) posicionMouse.x,(float)posicionMouse.y);
@@ -297,10 +311,13 @@ struct arBonito: public BST< visData >
             {
                DrawText(TextFormat("ultimo nodo clickeado: %i",nodoClickeado->dato.val),  cX, cY,15, DARKBLUE);
                //comente esto pq a veces funciona a veces se petatea, hay que debuggearlo
-               //extraeNodo(nodoClickeado);
-               //inserta(nodoClickeado);
+               
+               extraeNodo(nodoClickeado);
+               inserta(nodoClickeado);
             }
          }
+         calcularPosiciones();
+         actualizarVecArbol(); 
 
    }
 
@@ -320,8 +337,7 @@ struct arBonito: public BST< visData >
          DrawCircleLines(cX, cY, getRadioPorNivel(i),  DARKBLUE);
       }
 
-      calcularPosiciones();
-
+      
       dibujarArbol(raiz);
 
       EndDrawing ();
@@ -329,6 +345,7 @@ struct arBonito: public BST< visData >
 
    void dibujarArbol(nodoT<visData> *nodo)
    {
+      
       DrawCircleLines(nodo->dato.x, nodo->dato.y, nodeRadius,  GREEN);
       DrawText(TextFormat("%i",nodo->dato.val),  nodo->dato.x, nodo->dato.y,12, DARKBLUE);
 
