@@ -75,8 +75,8 @@ struct arBonito: public BST< visData >
    // Inicialización por defecto de la escena/visualización.
    arBonito():BST< visData >()
    {
-      ancho = GetMonitorWidth(GetCurrentMonitor());
-      alto = GetMonitorHeight(GetCurrentMonitor());
+      ancho = GetMonitorWidth(GetCurrentMonitor())/2;
+      alto = GetMonitorHeight(GetCurrentMonitor())/2;
       nNiveles = 0;
       nodeRadius = 20;
       cX = ancho / 2;
@@ -173,6 +173,17 @@ struct arBonito: public BST< visData >
    int _defNivelesYtamaños(nodoT<visData> * nodo ,int nivel)
    {
       nodo->dato.nivel = nivel;
+
+      /*
+      cout << "valor del nodo padre: "  << nodo->dato.val << endl;
+
+      if (nodo->izq)
+         cout << "valor del nodo izquierdo: "  << nodo->izq->dato.val << endl;
+
+      if (nodo->der)
+         cout << "valor del nodo derecho: "  << nodo->der->dato.val << endl;
+
+      */
 
       int tamaño = 1;
       if (nodo->izq)
@@ -301,6 +312,7 @@ struct arBonito: public BST< visData >
    void update()
    {
          Vector2 posicionMouse = GetMousePosition();
+         nodoT<visData>* nodoExtraido;
 
          //calcularPosiciones();
          //actualizarVecArbol(); 
@@ -310,51 +322,25 @@ struct arBonito: public BST< visData >
             nodoT<visData>* nodoClickeado = buscaNodoClickeado((float) posicionMouse.x,(float)posicionMouse.y);
             if (nodoClickeado)
             {
+
                DrawText(TextFormat("ultimo nodo clickeado: %i",nodoClickeado->dato.val),  cX, cY,15, DARKBLUE);
                //comente esto pq a veces funciona a veces se petatea, hay que debuggearlo
                
-               extraeNodo(nodoClickeado);
+               nodoExtraido = extraeNodo(nodoClickeado);
 
-               /*
-
-               bool eraHijoIzquierdo = false;
-
-               if (nodoClickeado->padre->izq == nodoClickeado)
-                  eraHijoIzquierdo = true;
-               else
-                  eraHijoIzquierdo = false;
-
-               if (eraHijoIzquierdo) // era hijo izquierdo
-               {
-                  //solo tenia hijo izquierdo
-                  if (!nodoClickeado->der && nodoClickeado->izq)
-                     nodoClickeado->padre->izq = nodoClickeado->izq;
-                  //solo tenia hijo derecho
-                  else if (nodoClickeado->der && !nodoClickeado->izq)
-                     nodoClickeado->padre->izq = nodoClickeado->der;
-                  else
-                  {
-                     nodoClickeado->padre->izq = nodoClickeado->der;
-
-                  }
-                     
-               }
-               else // era hijo derecho
-               {
-
-               }
-     
-               nodoClickeado->izq = nullptr;
-               nodoClickeado->der = nullptr;
-
-               inserta(nodoClickeado);
-               */
+               //cout << "Nodo extraido: " << nodoExtraido->dato.val << endl;
+               // calcularPosiciones();
+               //actualizarVecArbol(); 
+               // dibujarArbol(raiz);
+               inserta(nodoExtraido);
+               calcularPosiciones();
+               actualizarVecArbol(); 
+               
             }
          }
 
          
-         calcularPosiciones();
-         actualizarVecArbol(); 
+     
       
 
    }
@@ -417,7 +403,7 @@ struct arBonito: public BST< visData >
 
 int main (int argc, char **argv)
 {
-   int i, N = 10;
+   int i, N = 20;
    long semilla = 0;
    int ancho = 1920, alto = 1080;
    BST<visData> Basura;
@@ -444,15 +430,19 @@ int main (int argc, char **argv)
    
    for (i = 0; i < N; ++i)
    {
-      visData val ((int) ( rand() % 1000));
+      visData val ((int) ( rand() % 100));
 
       V.inserta (val);
       cout << "Insertamos el valor " << val << " al árbol." << endl;
    }
+      
+
+      
 
    cout << endl;
 
-   V.defNivelesYtamaños();
+   V.calcularPosiciones();
+   V.actualizarVecArbol();
 
    V.Loop ();
 

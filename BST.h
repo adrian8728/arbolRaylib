@@ -117,16 +117,9 @@ template < typename X > struct BST
    void inserta(nodoT<X> *n)
    {
       nodoT<X> *x, *y;
-
-      if (n == nullptr)
-         return;
-      if (raiz == nullptr)
-      {
-         raiz = n;
-         return;
-      }
-      x = raiz;
       y = nullptr;
+      x = raiz;
+
       while (x != nullptr)
       {
          y = x;
@@ -135,11 +128,17 @@ template < typename X > struct BST
          else
             x = x->der;
       }
-      if (n->dato < y->dato)
-            y->izq = n;
-         else
-            y->der = n;
       n->padre = y;
+      if (y == nullptr)
+      {
+         raiz = n;
+      }
+      else if (n->dato < y->dato)
+         y->izq = n;
+      else
+         y->der = n;
+     
+      
    }
 
    // Inserta un valor creando primero un nodo con creaNodo.
@@ -370,6 +369,7 @@ template < typename X > struct BST
    nodoT<X> *extraeNodo(nodoT<X> *z)
    {
       nodoT<X> *x, *y;
+      X temp;
 
       if (z->izq == nullptr || z->der == nullptr)
          y = z;
@@ -391,7 +391,12 @@ template < typename X > struct BST
             y->padre->der = x;
       }
       if (y != z)
+      {  
+         temp = z->dato;
          z->dato = y->dato;
+         y->dato = temp;
+      }
+         
       y->izq = y->der = y->padre = nullptr;
       return y;
    }   
