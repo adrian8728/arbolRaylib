@@ -162,9 +162,9 @@ struct arBonito: public BST< visData >
          if (nodo == nullptr)
             return 0;
          else if (!nodo->izq && !nodo->der)
-            return nodo->dato.nivel;
+            return nodo->dato.nivel+1;
          else
-            return std::max(nivelMaximo(nodo->izq), nivelMaximo(nodo->izq) );
+            return std::max(nivelMaximo(nodo->der), nivelMaximo(nodo->izq) );
     }
 
     
@@ -302,7 +302,8 @@ struct arBonito: public BST< visData >
    {
          Vector2 posicionMouse = GetMousePosition();
 
-         
+         //calcularPosiciones();
+         //actualizarVecArbol(); 
 
          if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
          {
@@ -313,11 +314,48 @@ struct arBonito: public BST< visData >
                //comente esto pq a veces funciona a veces se petatea, hay que debuggearlo
                
                extraeNodo(nodoClickeado);
+
+               /*
+
+               bool eraHijoIzquierdo = false;
+
+               if (nodoClickeado->padre->izq == nodoClickeado)
+                  eraHijoIzquierdo = true;
+               else
+                  eraHijoIzquierdo = false;
+
+               if (eraHijoIzquierdo) // era hijo izquierdo
+               {
+                  //solo tenia hijo izquierdo
+                  if (!nodoClickeado->der && nodoClickeado->izq)
+                     nodoClickeado->padre->izq = nodoClickeado->izq;
+                  //solo tenia hijo derecho
+                  else if (nodoClickeado->der && !nodoClickeado->izq)
+                     nodoClickeado->padre->izq = nodoClickeado->der;
+                  else
+                  {
+                     nodoClickeado->padre->izq = nodoClickeado->der;
+
+                  }
+                     
+               }
+               else // era hijo derecho
+               {
+
+               }
+     
+               nodoClickeado->izq = nullptr;
+               nodoClickeado->der = nullptr;
+
                inserta(nodoClickeado);
+               */
             }
          }
+
+         
          calcularPosiciones();
          actualizarVecArbol(); 
+      
 
    }
 
@@ -379,7 +417,7 @@ struct arBonito: public BST< visData >
 
 int main (int argc, char **argv)
 {
-   int i, N = 40;
+   int i, N = 10;
    long semilla = 0;
    int ancho = 1920, alto = 1080;
    BST<visData> Basura;
